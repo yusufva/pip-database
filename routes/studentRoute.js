@@ -1,7 +1,7 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
-import studentService from "../services/studentService";
-import httpRespondsMessage from "../helper/httpRespondsMessage";
+import studentService from "../services/studentService.js";
+import httpRespondsMessage from "../helper/httpRespondsMessage.js";
 
 var router = express.Router();
 
@@ -41,3 +41,5 @@ router.delete("/:id", async (req, res) => {
         return res.status(StatusCodes.NOT_FOUND).send(student);
     return res.send(student);
 });
+
+export default router;
