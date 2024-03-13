@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model student {
+  id                  Int       @unique @default(autoincrement())
+  nisn                String    @db.VarChar(11)
+  fase                String
+  nama                String
+  sekolah             String
+  provinsiSekolah     String
+  kotaSekolah         String
+  kecamatanSekolah    String
+  nik                 String    @db.VarChar(17)
+  npsn                String?   @db.VarChar(9)
+  kelas               Int
+  rombel              String
+  semester            String
+  jenjang             String    @db.VarChar(5)
+  bentuk              String
+  kelamin             String    @db.VarChar(1)
+  tempatLahir         String
+  tanggalLahir        DateTime
+  nokk            String?
+  family              family?   @relation(fields: [nokk], references: [nokk], onDelete: SetNull)
+  nominal             Int?
+  tipeSk              String?
+  skNominasi          String?
+  tanggalSkNominasi   DateTime?
+  tahapNominasi       Int?
+  vaNominasi          String?
+  noRek               String?
+  bank                String?   @db.VarChar(10)
+  layakPip            Boolean?
+  keteranganTahap     String?
+  keteranganPencairan String?
+  keteranganTambahan  String?
+  status              String?   @db.VarChar(2)
+  pic                 String
+
+  @@id([nisn, fase])
+}
+
+model family {
+  nokk    String         @id @db.VarChar(17)
+  member  familyMember[]
+  student student[]
+}
+
+model familyMember {
+  nik       Int          @id @default(autoincrement())
+  nama      String
+  nokk      String
+  family    family       @relation(fields: [nokk], references: [nokk])
+  statusId  Int
+  status    familyStatus @relation(fields: [statusId], references: [id])
+  anakKe    Int?
+  kotaLahir String
+  ttl       DateTime
+}
+
+model familyStatus {
+  id     Int            @id @default(autoincrement())
+  status String
+  family familyMember[]
+}
