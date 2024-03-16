@@ -32,7 +32,7 @@ model student {
   kelamin             String    @db.VarChar(1)
   tempatLahir         String
   tanggalLahir        DateTime
-  nokk            String?
+  nokk                String?
   family              family?   @relation(fields: [nokk], references: [nokk], onDelete: SetNull)
   nominal             Int?
   tipeSk              String?
@@ -59,12 +59,13 @@ model family {
 }
 
 model familyMember {
-  nik       Int          @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
+  nik       String       @db.VarChar(17)
   nama      String
-  nokk      String
-  family    family       @relation(fields: [nokk], references: [nokk])
+  nokk      String       @db.VarChar(17)
+  family    family       @relation(fields: [nokk], references: [nokk], onDelete: Cascade)
   statusId  Int
-  status    familyStatus @relation(fields: [statusId], references: [id])
+  status    familyStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
   anakKe    Int?
   kotaLahir String
   ttl       DateTime
@@ -72,6 +73,6 @@ model familyMember {
 
 model familyStatus {
   id     Int            @id @default(autoincrement())
-  status String
+  status String         @db.VarChar(5)
   family familyMember[]
 }
