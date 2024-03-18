@@ -4,7 +4,8 @@
     "private": true,
     "scripts": {
         "start": "pm2 start ./bin/www",
-        "dev": "nodemon ./bin/www"
+        "dev": "nodemon ./bin/www",
+        "prisma:seed": "node prisma/seed.js"
     },
     "type": "module",
     "dependencies": {
