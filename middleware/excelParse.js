@@ -41,3 +41,5 @@ function excelHandle(req, res, next) {
                 );
         });
 }
+
+export default excelHandle(req, res, next);
