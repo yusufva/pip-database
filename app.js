@@ -9,8 +9,6 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import indexRouter from "./routes/index.js";
-import userRouter from "./routes/users.js";
 import studentRoute from "./routes/studentRoute.js";
 
 var app = express();
@@ -33,8 +31,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", userRouter);
 app.use("/student", studentRoute);
 
 export default app;
