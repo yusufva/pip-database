@@ -2,6 +2,8 @@ import express from "express";
 import { StatusCodes } from "http-status-codes";
 import studentService from "../services/studentService.js";
 import httpRespondsMessage from "../helper/httpRespondsMessage.js";
+import { upload } from "../middleware/upload.js";
+import excelParse from "../middleware/excelParse.js";
 
 var router = express.Router();
 
@@ -22,10 +24,29 @@ router.post("/", async (req, res) => {
     const student = await studentService.create(req.body);
     if (student.statusCode == StatusCodes.CONFLICT)
         return res.status(StatusCodes.CONFLICT).send(student);
-    res.send(student);
+    res.status(student.statusCode).send(student);
 });
 
-router.post("/:id", async (req, res) => {
+router.post("/family", async (req, res) => {
+    const student = await studentService.createWithFam(req.body);
+    if (student.statusCode == StatusCodes.CONFLICT)
+        return res.status(student.statusCode).send(student);
+    res.status(student.statusCode).send(student);
+});
+
+router.post(
+    "/excel",
+    upload.single("excelFile"),
+    excelParse,
+    async (req, res) => {
+        const update = await studentService.update(req.excelData);
+        if (update.statusCode == StatusCodes.INTERNAL_SERVER_ERROR)
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(update);
+        return res.json(update);
+    }
+);
+
+router.put("/:id", async (req, res) => {
     const student = await studentService.update(
         parseInt(req.params.id),
         req.body
