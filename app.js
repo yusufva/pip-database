@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 import studentRoute from "./routes/studentRoute.js";
+import familyRoute from "./routes/familyRoute.js";
 
 var app = express();
 
@@ -32,5 +33,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/student", studentRoute);
+app.use("/family", familyRoute);
 
 export default app;
