@@ -148,44 +148,32 @@ async function createWithFam(payload) {
 }
 
 async function update(excel) {
-    // const path = "./public/uploads/" + file.filename;
-
-    // const workbook = new exceljs.Workbook();
-    // workbook.xlsx
-    //     .readFile(path)
-    //     .then((excelFile) => {
-    //         const worksheet = excelFile.worksheets[0];
-    //         const excelData = [];
-    //         const header = [];
-
-    //         worksheet.getRow(1).eachCell((cell, colNumber) => {
-    //             header[colNumber] = cell.value
-    //                 .replaceAll(" ", "")
-    //                 .toLowerCase();
-    //         });
-
-    //         worksheet.eachRow((row, index) => {
-    //             if (index > 1) {
-    //                 const rowData = {};
-    //                 row.eachCell((cell, colNumber) => {
-    //                     rowData[`${header[colNumber]}`] = cell.value;
-    //                 });
-    //                 excelData.push(rowData);
-    //             }
-    //         });
-
     try {
-        excel.map(async (data) => {
+        await excel.map(async (data) => {
             let student = await prisma.student.findFirst({
                 where: {
-                    nisn: data.nisn,
+                    AND: [
+                        {
+                            nisn: data.nisn,
+                        },
+                        {
+                            fase: data.fase,
+                        },
+                    ],
+                },
+                include: {
+                    family: {
+                        include: {
+                            member: true,
+                        },
+                    },
                 },
             });
-
             if (!student) return null;
-            student = prisma.student.update({
+            const id = student.id;
+            student = await prisma.student.update({
                 where: {
-                    nisn: data.nisn,
+                    id: id,
                 },
                 data: {
                     nama: data.namasiswa,
@@ -208,7 +196,7 @@ async function update(excel) {
                     vaNominasi: data.virtualaccountnominasi,
                     noRek: data["no.rekening"],
                     bank: data.bank,
-                    layakPip: data.layakpip,
+                    layakPip: data.layakpip == "1" ? 1 : 0,
                     fase: data.fase,
                     keteranganTahap: data.keterangantahap,
                     keteranganPencairan: data.keteranganpencairan,
@@ -226,20 +214,15 @@ async function update(excel) {
 
         return httpRespondsMessage.getSuccess("success update data");
     } catch (err) {
-        return httpRespondsMessage.internalServerError("failed update data");
+        if (err instanceof Prisma.PrismaClientValidationError) {
+            // Extract error message from Prisma client validation error
+            const errorMessage = err.message || "Validation error occurred";
+
+            return httpRespondsMessage.badRequest(errorMessage);
+        }
+
+        return httpRespondsMessage.internalServerError(err.message);
     }
-
-    // })
-    // .catch((err) => {
-    //     unlink(path, (err) => {
-    //         if (err) throw err;
-    //     });
-    //     return httpRespondsMessage.internalServerError(
-    //         "internal server error"
-    //     );
-    // });
-
-    return httpRespondsMessage.getSuccess("success update data");
 }
 
 async function deleteById(id) {
