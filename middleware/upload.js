@@ -8,8 +8,10 @@ const xlsStorage = multer.diskStorage({
     filename: (req, file, cb) => {
         cb(
             null,
-            `excel-${file.originalname}-${new Date().getTime()}` +
-                path.extname(file.originalname)
+            `excel-${file.originalname.replaceAll(
+                " ",
+                ""
+            )}-${new Date().getTime()}` + path.extname(file.originalname)
         );
     },
 });
