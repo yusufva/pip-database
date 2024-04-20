@@ -11,6 +11,7 @@ const __dirname = dirname(__filename);
 
 import studentRoute from "./routes/studentRoute.js";
 import familyRoute from "./routes/familyRoute.js";
+import userRoute from "./routes/userRoute.js";
 
 var app = express();
 
@@ -34,5 +35,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/student", studentRoute);
 app.use("/family", familyRoute);
+app.use("/auth", userRoute);
 
 export default app;
