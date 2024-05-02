@@ -9,6 +9,9 @@
         "prisma:roleseed": "node prisma/roleseed.js"
     },
     "type": "module",
+    "bin": {
+        "www": ".bin/www"
+    },
     "dependencies": {
         "@prisma/client": "^5.12.1",
         "bcryptjs": "^2.4.3",
