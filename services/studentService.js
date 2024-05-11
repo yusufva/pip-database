@@ -8,7 +8,7 @@ async function getAll() {
         include: {
             family: {
                 include: {
-                    member: true,
+                    familyMember: true,
                 },
             },
         },
@@ -27,7 +27,7 @@ async function getById(id) {
         include: {
             family: {
                 include: {
-                    member: true,
+                    familyMember: true,
                 },
             },
         },
@@ -39,6 +39,25 @@ async function getById(id) {
 
 async function create(payload) {
     try {
+        const members = [];
+        payload.familyMember.map((member) => {
+            const data = {
+                familyMemberNik: member.nik,
+            };
+            members.push(data);
+        });
+        // payload.familyMember.map((member) => {
+        //     member.ttl = new Date(member.ttl);
+        // });
+        // const members = [];
+        // payload.familyMember.map((member) => {
+        //     const data = {
+        //         familyMemberInfo: {
+        //             create: member,
+        //         },
+        //     };
+        //     members.push(data);
+        // });
         const student = await prisma.student.create({
             data: {
                 nisn: payload.nisn,
@@ -57,27 +76,34 @@ async function create(payload) {
                 tanggalLahir: new Date(payload.tanggalLahir),
                 fase: payload.fase,
                 nik: payload.nik,
-                nokk: payload.nokk,
-                pic: payload.pic,
+                koordinator: payload.koordinator,
+                aspirator: payload.aspirator,
+                family: {
+                    create: members,
+                },
             },
             include: {
                 family: {
                     include: {
-                        member: true,
+                        familyMemberInfo: true,
                     },
                 },
             },
         });
+        // return student;
         return httpRespondsMessage.created("student created", student);
     } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
             // The .code property can be accessed in a type-safe manner
             if (e.code === "P2002") {
+                console.log(e);
                 return httpRespondsMessage.conflict(
                     "data in this periods already exists"
                 );
             }
+            return httpRespondsMessage.internalServerError(e.message);
         }
+        return httpRespondsMessage.internalServerError(e);
     }
 }
 
@@ -86,39 +112,49 @@ async function createWithFam(payload) {
         payload.familyMember.map((member) => {
             member.ttl = new Date(member.ttl);
         });
-        const student = await prisma.family.create({
-            data: {
-                nokk: payload.nokk,
-                member: {
-                    createMany: {
-                        data: payload.familyMember,
-                    },
+        const members = [];
+        payload.familyMember.map((member) => {
+            const data = {
+                familyMemberInfo: {
+                    create: member,
                 },
-                student: {
-                    create: {
-                        nisn: payload.nisn,
-                        nama: payload.nama,
-                        sekolah: payload.sekolah,
-                        provinsiSekolah: payload.provinsi,
-                        kotaSekolah: payload.kota,
-                        kecamatanSekolah: payload.kecamatan,
-                        kelas: payload.kelas,
-                        rombel: payload.rombel,
-                        semester: payload.semester,
-                        jenjang: payload.jenjang,
-                        bentuk: payload.bentuk,
-                        kelamin: payload.kelamin,
-                        tempatLahir: payload.tempatLahir,
-                        tanggalLahir: new Date(payload.tanggalLahir),
-                        fase: payload.fase,
-                        nik: payload.nik,
-                        pic: payload.pic,
-                    },
+            };
+            members.push(data);
+        });
+        // members.map((mmbr) => {
+        //     console.log(mmbr);
+        // });
+        // // return console.log(members[0].familyMemberInfo.create);
+        const student = await prisma.student.create({
+            data: {
+                nisn: payload.nisn,
+                nama: payload.nama,
+                sekolah: payload.sekolah,
+                provinsiSekolah: payload.provinsi,
+                kotaSekolah: payload.kota,
+                kecamatanSekolah: payload.kecamatan,
+                kelas: payload.kelas,
+                rombel: payload.rombel,
+                semester: payload.semester,
+                jenjang: payload.jenjang,
+                bentuk: payload.bentuk,
+                kelamin: payload.kelamin,
+                tempatLahir: payload.tempatLahir,
+                tanggalLahir: new Date(payload.tanggalLahir),
+                fase: payload.fase,
+                nik: payload.nik,
+                koordinator: payload.koordinator,
+                aspirator: payload.aspirator,
+                family: {
+                    create: members,
                 },
             },
             include: {
-                member: true,
-                student: true,
+                family: {
+                    include: {
+                        familyMemberInfo: true,
+                    },
+                },
             },
         });
 
@@ -200,7 +236,7 @@ async function update(excel) {
                     fase: data.fase,
                     keteranganTahap: data.keterangantahap,
                     keteranganPencairan: data.keteranganpencairan,
-                    status: data.status,
+                    status: "SK TERBIT",
                 },
                 include: {
                     family: {

@@ -1,7 +1,6 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
 import studentService from "../services/studentService.js";
-import httpRespondsMessage from "../helper/httpRespondsMessage.js";
 import { upload } from "../middleware/upload.js";
 import excelParse from "../middleware/excelParse.js";
 
@@ -9,10 +8,7 @@ var router = express.Router();
 
 router.get("/", async (req, res) => {
     const students = await studentService.getAll();
-    res.send(
-        httpRespondsMessage.getSuccess("success retrieve data", students) ||
-            httpRespondsMessage.getSuccess("success retrieve data", [])
-    );
+    res.send(students);
 });
 router.get("/:id", async (req, res) => {
     const student = await studentService.getById(parseInt(req.params.id));
