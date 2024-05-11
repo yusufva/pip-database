@@ -14,26 +14,24 @@ datasource db {
 }
 
 model student {
-  id                  Int       @unique @default(autoincrement())
-  nisn                String    @db.VarChar(11)
+  id                  Int                @unique @default(autoincrement())
+  nisn                String             @db.VarChar(11)
   fase                String
   nama                String
   sekolah             String
   provinsiSekolah     String
   kotaSekolah         String
   kecamatanSekolah    String
-  nik                 String    @db.VarChar(17)
-  npsn                String?   @db.VarChar(9)
+  nik                 String?            @db.VarChar(17)
+  npsn                String?            @db.VarChar(9)
   kelas               Int
   rombel              String
   semester            String
-  jenjang             String    @db.VarChar(5)
+  jenjang             String             @db.VarChar(5)
   bentuk              String
-  kelamin             String    @db.VarChar(1)
+  kelamin             String             @db.VarChar(1)
   tempatLahir         String
   tanggalLahir        DateTime
-  nokk                String?
-  family              family?   @relation(fields: [nokk], references: [nokk], onDelete: SetNull)
   nominal             Int?
   tipeSk              String?
   skNominasi          String?
@@ -41,34 +39,34 @@ model student {
   tahapNominasi       Int?
   vaNominasi          String?
   noRek               String?
-  bank                String?   @db.VarChar(10)
+  bank                String?            @db.VarChar(10)
   layakPip            Boolean?
   keteranganTahap     String?
   keteranganPencairan String?
   keteranganTambahan  String?
-  status              String?   @db.VarChar(2)
-  pic                 String
+  status              String?            @db.VarChar(2)
+  koordinator         String
+  aspirator           String
+  family              familyOnStudents[]
 
   @@id([nisn, fase])
 }
 
-model family {
-  nokk    String         @id @db.VarChar(17)
-  member  familyMember[]
-  student student[]
-}
+// model family {
+//   nokk    String         @id @db.VarChar(17)
+//   member  familyMember[]
+//   student student[]
+// }
 
 model familyMember {
-  id        Int          @id @default(autoincrement())
-  nik       String       @db.VarChar(17)
-  nama      String
-  nokk      String       @db.VarChar(17)
-  family    family       @relation(fields: [nokk], references: [nokk], onDelete: Cascade)
-  statusId  Int
-  status    familyStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
-  anakKe    Int?
-  kotaLahir String
-  ttl       DateTime
+  nik      String             @db.VarChar(17)
+  nama     String
+  statusId Int
+  status   familyStatus       @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  ttl      DateTime
+  student  familyOnStudents[]
+
+  @@id([nik])
 }
 
 model familyStatus {
@@ -77,13 +75,24 @@ model familyStatus {
   family familyMember[]
 }
 
+model familyOnStudents {
+  studentFase      String
+  studentNisn      String        @db.VarChar(11)
+  studentInfo      student?      @relation(fields: [studentNisn, studentFase], references: [nisn, fase], onDelete: Cascade)
+  familyMemberNik  String        @db.VarChar(17)
+  familyMemberInfo familyMember? @relation(fields: [familyMemberNik], references: [nik], onDelete: Cascade)
+
+  @@id([familyMemberNik, studentFase, studentNisn])
+}
+
 model user {
   id            Int      @id @default(autoincrement())
-  email         String   @unique
+  username      String   @unique
   password      String   @db.Text
   name          String
   role_id       Int
   role          Role     @relation(references: [id], fields: [role_id])
+  aspirator     String
   refresh_token String?  @db.Text
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
