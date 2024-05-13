@@ -15,13 +15,14 @@ async function login(loginPayload) {
     const userId = user.id;
     const name = user.name;
     const role = user.role;
+    const aspirator = user.aspirator;
     const accessToken = jwt.sign(
-        { userId, name, role },
+        { userId, name, role, aspirator },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "3h" }
     );
     const refreshToken = jwt.sign(
-        { userId, name, role },
+        { userId, name, role, aspirator },
         process.env.REFRESH_TOKEN_SECRET,
         { expiresIn: "1d" }
     );
@@ -42,9 +43,10 @@ async function register(registerPayload) {
         await prisma.user.create({
             data: {
                 name: registerPayload.name,
-                email: registerPayload.email,
+                username: registerPayload.username,
                 password: hashPassword,
                 role_id: registerPayload.role_id,
+                aspirator: registerPayload.aspirator,
             },
         });
         return httpRespondsMessage.created("success register user");
