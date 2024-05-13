@@ -8,7 +8,7 @@ async function getAll() {
         include: {
             family: {
                 include: {
-                    familyMember: true,
+                    familyMemberInfo: true,
                 },
             },
         },
@@ -27,7 +27,7 @@ async function getById(id) {
         include: {
             family: {
                 include: {
-                    familyMember: true,
+                    familyMemberInfo: true,
                 },
             },
         },
