@@ -1,19 +1,18 @@
 import express from "express";
 import { StatusCodes } from "http-status-codes";
 import familyService from "../services/familyService.js";
-import httpRespondsMessage from "../helper/httpRespondsMessage.js";
+import jwtauth from "../middleware/jwtauth.js";
 
 var router = express.Router();
 
 router.get("/", async (req, res) => {
-    const families = await familyService.getAll();
-    res.status(families.statusCode).send(families || []);
+    const families = await familyService.getAll(req.name, req.role);
+    res.status(families.statusCode).send(families);
 });
 
-router.get("/:nisn", async (req, res) => {
+router.get("/:nisn", jwtauth.verifyToken(), async (req, res) => {
     const nisn = req.params.nisn;
     const family = await familyService.getByStudent(nisn);
-    if (family == null) return res.status(StatusCodes.NOT_FOUND).send(family);
     res.status(family.statusCode).send(family);
 });
 

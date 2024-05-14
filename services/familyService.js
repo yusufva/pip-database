@@ -3,8 +3,8 @@ import httpRespondsMessage from "../helper/httpRespondsMessage.js";
 
 const prisma = new PrismaClient();
 
-async function getAll() {
-    const families = await prisma.familyMember.findMany({
+async function getAll(name, role) {
+    const findPayload = {
         include: {
             student: {
                 select: {
@@ -13,8 +13,30 @@ async function getAll() {
             },
             status: true,
         },
-    });
-    return httpRespondsMessage.getSuccess("success retrieve data", families);
+    };
+    role == 1
+        ? (findPayload.where = {
+              student: {
+                  some: {
+                      studentInfo: {
+                          aspirator: name,
+                      },
+                  },
+              },
+          })
+        : (findPayload.where = {
+              student: {
+                  some: {
+                      studentInfo: {
+                          koordinator: name,
+                      },
+                  },
+              },
+          });
+    const families = await prisma.familyMember.findMany(findPayload);
+    return families.length < 1
+        ? httpRespondsMessage.notFound("student data not found")
+        : httpRespondsMessage.getSuccess("success retrieve data", families);
 }
 
 async function getByStudent(nisn) {
@@ -35,8 +57,9 @@ async function getByStudent(nisn) {
             },
         },
     });
-    if (family == []) return httpRespondsMessage.notFound("data not found");
-    return httpRespondsMessage.getSuccess("success retrieve data", family);
+    return family.length < 1
+        ? httpRespondsMessage.notFound("data not found")
+        : httpRespondsMessage.getSuccess("success retrieve data", family);
 }
 
 async function getByFamilyNik(nik) {
@@ -53,50 +76,13 @@ async function getByFamilyNik(nik) {
             },
         },
     });
-    return httpRespondsMessage.getSuccess("success retrieve data", family);
+    return family
+        ? httpRespondsMessage.getSuccess("success retrieve data", family)
+        : httpRespondsMessage.notFound("data not found");
 }
-
-// async function create(payload) {
-//     try {
-//         const member = {
-//             nik: payload.member.nik,
-//             nama: payload.member.nama,
-//             nokk: payload.nokk,
-//             statusId: payload.member.statusId,
-//             anakKe: payload.member.anakKe,
-//             kotaLahir: payload.member.kotaLahir,
-//             ttl: payload.member.ttl,
-//         };
-//         const family = await prisma.family.create({
-//             data: {
-//                 nokk: payload.nokk,
-//                 member: {
-//                     createMany: {
-//                         data: member,
-//                     },
-//                 },
-//             },
-//             include: {
-//                 member: true,
-//                 student: true,
-//             },
-//         });
-//         return httpRespondsMessage.created("family data created", family);
-//     } catch (e) {
-//         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-//             // The .code property can be accessed in a type-safe manner
-//             if (e.code === "P2002") {
-//                 return httpRespondsMessage.conflict(
-//                     "data in this kk number already exists"
-//                 );
-//             }
-//         }
-//     }
-// }
 
 export default {
     getAll,
     getByStudent,
     getByFamilyNik,
-    // create,
 };
