@@ -46,18 +46,6 @@ async function create(payload) {
             };
             members.push(data);
         });
-        // payload.familyMember.map((member) => {
-        //     member.ttl = new Date(member.ttl);
-        // });
-        // const members = [];
-        // payload.familyMember.map((member) => {
-        //     const data = {
-        //         familyMemberInfo: {
-        //             create: member,
-        //         },
-        //     };
-        //     members.push(data);
-        // });
         const student = await prisma.student.create({
             data: {
                 nisn: payload.nisn,
@@ -121,10 +109,6 @@ async function createWithFam(payload) {
             };
             members.push(data);
         });
-        // members.map((mmbr) => {
-        //     console.log(mmbr);
-        // });
-        // // return console.log(members[0].familyMemberInfo.create);
         const student = await prisma.student.create({
             data: {
                 nisn: payload.nisn,
@@ -241,7 +225,7 @@ async function update(excel) {
                 include: {
                     family: {
                         include: {
-                            member: true,
+                            familyMemberInfo: true,
                         },
                     },
                 },
@@ -275,7 +259,7 @@ async function deleteById(id) {
         include: {
             family: {
                 include: {
-                    member: true,
+                    familyMemberInfo: true,
                 },
             },
         },
