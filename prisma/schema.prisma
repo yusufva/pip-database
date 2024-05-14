@@ -91,7 +91,7 @@ model user {
   role_id       Int
   role          Role     @relation(references: [id], fields: [role_id])
   koordinator   user[]  @relation("AspiratorKoordinator")
-  aspiratorId   Int? @default(0)
+  aspiratorId   Int? 
   aspirator     user?   @relation("AspiratorKoordinator", fields: [aspiratorId], references: [id])
   refresh_token String?  @db.Text
   created_at    DateTime @default(now())
