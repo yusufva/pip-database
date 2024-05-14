@@ -52,12 +52,6 @@ model student {
   @@id([nisn, fase])
 }
 
-// model family {
-//   nokk    String         @id @db.VarChar(17)
-//   member  familyMember[]
-//   student student[]
-// }
-
 model familyMember {
   nik       String             @db.VarChar(17)
   nama      String
@@ -96,7 +90,9 @@ model user {
   name          String
   role_id       Int
   role          Role     @relation(references: [id], fields: [role_id])
-  aspirator     String
+  koordinator   user[]  @relation("AspiratorKoordinator")
+  aspiratorId   Int? @default(0)
+  aspirator     user?   @relation("AspiratorKoordinator", fields: [aspiratorId], references: [id])
   refresh_token String?  @db.Text
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
