@@ -27,8 +27,8 @@ async function getUserByAspirator(id) {
 }
 
 async function login(loginPayload) {
-    const user = await prisma.user.findFirstOrThrow({
-        where: { email: loginPayload.email },
+    const user = await prisma.user.findFirst({
+        where: { username: loginPayload.username },
         include: {
             aspirator: {
                 select: {
@@ -37,12 +37,13 @@ async function login(loginPayload) {
             },
         },
     });
+    if (!user) return httpRespondsMessage.notFound("this user doesn't exist");
     const isValid = await bcrypt.compare(loginPayload.password, user.password);
     if (!isValid)
         return httpRespondsMessage.badRequest("invalid email or password");
     const userId = user.id;
     const name = user.name;
-    const role = user.role;
+    const role = user.role_id;
     const aspirator = user.aspiratorId == null ? null : user.aspirator.name;
     const accessToken = jwt.sign(
         { userId, name, role, aspirator },
