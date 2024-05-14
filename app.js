@@ -9,8 +9,11 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+import jwtauth from "./middleware/jwtauth.js";
+
 import studentRoute from "./routes/studentRoute.js";
 import familyRoute from "./routes/familyRoute.js";
+import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
 
 var app = express();
@@ -33,8 +36,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/student", studentRoute);
-app.use("/family", familyRoute);
-app.use("/auth", userRoute);
+app.use("/student", jwtauth.verifyToken(), studentRoute);
+app.use("/family", jwtauth.verifyToken(), familyRoute);
+app.use("/auth", authRoute);
+app.use("/user", jwtauth.verifyToken(), userRoute);
 
 export default app;
