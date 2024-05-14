@@ -5,12 +5,16 @@ const prisma = new PrismaClient();
 async function role() {
     const roleList = [
         {
+            id: 99,
+            role_name: "super user",
+        },
+        {
             id: 1,
-            role_name: "super admin",
+            role_name: "aspirator",
         },
         {
             id: 2,
-            role_name: "admin",
+            role_name: "koordinator",
         },
     ];
 
