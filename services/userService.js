@@ -5,9 +5,37 @@ import httpRespondsMessage from "../helper/httpRespondsMessage.js";
 
 const prisma = new PrismaClient();
 
+async function getUserByAspirator(id) {
+    const user = await prisma.user.findMany({
+        where: {
+            aspiratorId: id,
+        },
+        select: {
+            id: true,
+            username: true,
+            name: true,
+            role_id: true,
+            aspirator: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+    });
+    return httpRespondsMessage.getSuccess("success retrieve data", user);
+}
+
 async function login(loginPayload) {
     const user = await prisma.user.findFirstOrThrow({
         where: { email: loginPayload.email },
+        include: {
+            aspirator: {
+                select: {
+                    name: true,
+                },
+            },
+        },
     });
     const isValid = await bcrypt.compare(loginPayload.password, user.password);
     if (!isValid)
@@ -15,7 +43,7 @@ async function login(loginPayload) {
     const userId = user.id;
     const name = user.name;
     const role = user.role;
-    const aspirator = user.aspirator;
+    const aspirator = user.aspiratorId == null ? null : user.aspirator.name;
     const accessToken = jwt.sign(
         { userId, name, role, aspirator },
         process.env.ACCESS_TOKEN_SECRET,
@@ -40,21 +68,26 @@ async function register(registerPayload) {
     const salt = await bcrypt.genSalt(13);
     const hashPassword = await bcrypt.hash(registerPayload.password, salt);
     try {
+        const userData = {
+            name: registerPayload.name,
+            username: registerPayload.username,
+            password: hashPassword,
+            role_id: registerPayload.role_id,
+        };
+
+        if (registerPayload.aspiratorId != null) {
+            userData.aspiratorId = registerPayload.aspiratorId;
+        }
+
         await prisma.user.create({
-            data: {
-                name: registerPayload.name,
-                username: registerPayload.username,
-                password: hashPassword,
-                role_id: registerPayload.role_id,
-                aspirator: registerPayload.aspirator,
-            },
+            data: userData,
         });
         return httpRespondsMessage.created("success register user");
     } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
             if (e.code === "P2002") {
                 return httpRespondsMessage.conflict(
-                    "data in this email already exists"
+                    "data in this username already exists"
                 );
             }
         }
@@ -82,6 +115,7 @@ async function resetPassword(id, userId, resetPayload) {
 }
 
 export default {
+    getUserByAspirator,
     login,
     register,
     resetPassword,
