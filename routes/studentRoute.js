@@ -7,11 +7,15 @@ import excelParse from "../middleware/excelParse.js";
 var router = express.Router();
 
 router.get("/", async (req, res) => {
-    const students = await studentService.getAll();
+    const students = await studentService.getAll(req.name, req.role);
     res.send(students);
 });
 router.get("/:id", async (req, res) => {
-    const student = await studentService.getById(parseInt(req.params.id));
+    const student = await studentService.getById(
+        parseInt(req.params.id),
+        req.name,
+        req.role
+    );
     if (!student) return res.status(StatusCodes.NOT_FOUND).send(student);
     res.send(student);
 });

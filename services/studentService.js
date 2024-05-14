@@ -3,8 +3,8 @@ import httpRespondsMessage from "../helper/httpRespondsMessage.js";
 
 const prisma = new PrismaClient();
 
-async function getAll() {
-    const students = await prisma.student.findMany({
+async function getAll(nama, role) {
+    const findPayload = {
         include: {
             family: {
                 include: {
@@ -12,14 +12,18 @@ async function getAll() {
                 },
             },
         },
-    });
+    };
+    role == 1
+        ? (findPayload.where = { aspirator: nama })
+        : (findPayload.where = { koordinator: nama });
+    const students = await prisma.student.findMany(findPayload);
     return (
         httpRespondsMessage.getSuccess("success retrieve data", students) ||
         httpRespondsMessage.getSuccess("success retrieve data", [])
     );
 }
 
-async function getById(id) {
+async function getById(id, nama, roleid) {
     const student = await prisma.student.findUnique({
         where: {
             id: id,
@@ -32,6 +36,17 @@ async function getById(id) {
             },
         },
     });
+    if (roleid == 1) {
+        if (student.aspirator != nama)
+            return httpRespondsMessage.unauthorized(
+                "you can't get another aspirator data"
+            );
+    } else if (roleid == 2) {
+        if (student.koordinator != nama)
+            return httpRespondsMessage.unauthorized(
+                "you can't get another koordinator data"
+            );
+    }
     return student
         ? httpRespondsMessage.getSuccess("success retrieve data", student)
         : httpRespondsMessage.notFound("student not found");
@@ -245,13 +260,24 @@ async function update(excel) {
     }
 }
 
-async function deleteById(id) {
+async function deleteById(id, name, role) {
     let student = await prisma.student.findFirst({
         where: {
             id: id,
         },
     });
     if (!student) return httpRespondsMessage.notFound("student not found");
+    if (role == 1) {
+        if (student.aspirator != name)
+            return httpRespondsMessage.unauthorized(
+                "you are not authorized to delete this student"
+            );
+    } else if (role == 2) {
+        if (student.koordinator != name)
+            return httpRespondsMessage.unauthorized(
+                "you are not authorized to delete this student"
+            );
+    }
     student = await prisma.student.delete({
         where: {
             id: id,
