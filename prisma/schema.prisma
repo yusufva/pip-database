@@ -59,12 +59,16 @@ model student {
 // }
 
 model familyMember {
-  nik      String             @db.VarChar(17)
-  nama     String
-  statusId Int
-  status   familyStatus       @relation(fields: [statusId], references: [id], onDelete: Cascade)
-  ttl      DateTime
-  student  familyOnStudents[]
+  nik       String             @db.VarChar(17)
+  nama      String
+  statusId  Int
+  status    familyStatus       @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  ttl       DateTime
+  provinsi  String             @default("")
+  kota      String             @default("")
+  kecamatan String             @default("")
+  alamat    String             @default("")
+  student   familyOnStudents[]
 
   @@id([nik])
 }
