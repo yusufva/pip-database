@@ -62,6 +62,7 @@ model familyMember {
   kota      String             @default("")
   kecamatan String             @default("")
   alamat    String             @default("")
+  hp        String?            @default("")
   student   familyOnStudents[]
 
   @@id([nik])
@@ -90,9 +91,9 @@ model user {
   name          String
   role_id       Int
   role          Role     @relation(references: [id], fields: [role_id])
-  koordinator   user[]  @relation("AspiratorKoordinator")
-  aspiratorId   Int? 
-  aspirator     user?   @relation("AspiratorKoordinator", fields: [aspiratorId], references: [id])
+  koordinator   user[]   @relation("AspiratorKoordinator")
+  aspiratorId   Int?
+  aspirator     user?    @relation("AspiratorKoordinator", fields: [aspiratorId], references: [id])
   refresh_token String?  @db.Text
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
