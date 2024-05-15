@@ -79,6 +79,7 @@ async function create(payload) {
                 tanggalLahir: new Date(payload.tanggalLahir),
                 fase: payload.fase,
                 nik: payload.nik,
+                status: "DIDAFTARKAN",
                 koordinator: payload.koordinator,
                 aspirator: payload.aspirator,
                 family: {
@@ -142,6 +143,7 @@ async function createWithFam(payload) {
                 tanggalLahir: new Date(payload.tanggalLahir),
                 fase: payload.fase,
                 nik: payload.nik,
+                status: "DIDAFTARKAN",
                 koordinator: payload.koordinator,
                 aspirator: payload.aspirator,
                 family: {
