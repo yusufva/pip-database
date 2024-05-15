@@ -61,6 +61,8 @@ model familyMember {
   provinsi  String             @default("")
   kota      String             @default("")
   kecamatan String             @default("")
+  kelurahan String             @default("")
+  kodepos   String             @default("")
   alamat    String             @default("")
   hp        String?            @default("")
   student   familyOnStudents[]
