@@ -44,7 +44,7 @@ model student {
   keteranganTahap     String?
   keteranganPencairan String?
   keteranganTambahan  String?
-  status              String?            @db.VarChar(2)
+  status              String?            @db.VarChar(25)
   koordinator         String
   aspirator           String
   family              familyOnStudents[]
