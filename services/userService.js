@@ -14,11 +14,34 @@ async function getUserByAspirator(id) {
             id: true,
             username: true,
             name: true,
-            role_id: true,
+            role: {
+                select: {
+                    id: true,
+                    role_name: true,
+                },
+            },
             aspirator: {
                 select: {
                     id: true,
                     name: true,
+                },
+            },
+        },
+    });
+    return httpRespondsMessage.getSuccess("success retrieve data", user);
+}
+
+async function getAllAspirator() {
+    const user = await prisma.user.findMany({
+        where: {
+            role_id: 1,
+        },
+        select: {
+            id: true,
+            name: true,
+            role: {
+                select: {
+                    role_name: true,
                 },
             },
         },
@@ -117,6 +140,7 @@ async function resetPassword(id, userId, resetPayload) {
 
 export default {
     getUserByAspirator,
+    getAllAspirator,
     login,
     register,
     resetPassword,

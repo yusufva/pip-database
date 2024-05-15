@@ -10,4 +10,9 @@ router.get("/", async (req, res) => {
     res.status(koordinators.statusCode).send(koordinators);
 });
 
+router.get("/aspirator", async (req, res) => {
+    const aspirators = await userService.getAllAspirator();
+    res.status(aspirators.statusCode).json(aspirators);
+});
+
 export default router;
