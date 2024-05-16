@@ -26,7 +26,7 @@ model student {
   npsn                String?            @db.VarChar(9)
   kelas               Int
   rombel              String
-  semester            String
+  semester            String             @default("")
   jenjang             String             @db.VarChar(5)
   bentuk              String
   kelamin             String             @db.VarChar(1)
@@ -48,6 +48,8 @@ model student {
   koordinator         String
   aspirator           String
   family              familyOnStudents[]
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @default(now())
 
   @@id([nisn, fase])
 }
@@ -57,7 +59,7 @@ model familyMember {
   nama      String
   statusId  Int
   status    familyStatus       @relation(fields: [statusId], references: [id], onDelete: Cascade)
-  ttl       DateTime
+  ttl       DateTime?
   provinsi  String             @default("")
   kota      String             @default("")
   kecamatan String             @default("")
