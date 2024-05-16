@@ -114,7 +114,9 @@ async function create(payload) {
 async function createWithFam(payload) {
     try {
         payload.familyMember.map((member) => {
-            member.ttl = new Date(member.ttl);
+            member.ttl != null
+                ? (member.ttl = new Date(member.ttl))
+                : (member.ttl = null);
         });
         const members = [];
         payload.familyMember.map((member) => {
@@ -201,7 +203,7 @@ async function update(excel) {
                 include: {
                     family: {
                         include: {
-                            member: true,
+                            familyMemberInfo: true,
                         },
                     },
                 },
@@ -238,6 +240,7 @@ async function update(excel) {
                     keteranganTahap: data.keterangantahap,
                     keteranganPencairan: data.keteranganpencairan,
                     status: "SK TERBIT",
+                    created_at: new Date(Date.now()),
                 },
                 include: {
                     family: {
@@ -260,6 +263,27 @@ async function update(excel) {
 
         return httpRespondsMessage.internalServerError(err.message);
     }
+}
+
+async function status(id, status) {
+    let student = await prisma.student.findFirst({
+        where: {
+            id: id,
+        },
+    });
+    if (!student) return httpRespondsMessage.notFound("student not found");
+
+    student = await prisma.student.update({
+        where: {
+            id: id,
+        },
+        data: {
+            status: status.name,
+            updated_at: new Date(Date.now()),
+        },
+    });
+
+    return httpRespondsMessage.getSuccess("success update status");
 }
 
 async function deleteById(id, name, role) {
@@ -301,5 +325,6 @@ export default {
     create,
     createWithFam,
     update,
+    status,
     delete: deleteById,
 };
