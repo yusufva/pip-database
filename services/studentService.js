@@ -82,6 +82,7 @@ async function create(payload) {
                 status: "DIDAFTARKAN",
                 koordinator: payload.koordinator,
                 aspirator: payload.aspirator,
+                pic: payload.pic,
                 family: {
                     create: members,
                 },
@@ -148,6 +149,7 @@ async function createWithFam(payload) {
                 status: "DIDAFTARKAN",
                 koordinator: payload.koordinator,
                 aspirator: payload.aspirator,
+                pic: payload.pic,
                 family: {
                     create: members,
                 },
@@ -279,6 +281,7 @@ async function status(id, status) {
         },
         data: {
             status: status.name,
+            keteranganTambahan: status.keteranganTambahan,
             updated_at: new Date(Date.now()),
         },
     });
