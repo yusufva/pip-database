@@ -65,7 +65,7 @@ router.put("/status/:id", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-    const student = await studentService.deleteById(parseInt(req.params.id));
+    const student = await studentService.delete(parseInt(req.params.id));
     if (student.statusCode == StatusCodes.NOT_FOUND)
         return res.status(StatusCodes.NOT_FOUND).send(student);
     return res.send(student);
