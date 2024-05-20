@@ -83,6 +83,7 @@ async function create(payload) {
                 koordinator: payload.koordinator,
                 aspirator: payload.aspirator,
                 pic: payload.pic,
+                keteranganTambahan: payload.keteranganTambahan,
                 family: {
                     create: members,
                 },
@@ -150,6 +151,7 @@ async function createWithFam(payload) {
                 koordinator: payload.koordinator,
                 aspirator: payload.aspirator,
                 pic: payload.pic,
+                keteranganTambahan: payload.keteranganTambahan,
                 family: {
                     create: members,
                 },
