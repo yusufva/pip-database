@@ -47,6 +47,7 @@ model student {
   status              String?            @db.VarChar(25)
   koordinator         String
   aspirator           String
+  pic                 String?
   family              familyOnStudents[]
   created_at          DateTime           @default(now())
   updated_at          DateTime           @default(now())
