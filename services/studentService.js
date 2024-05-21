@@ -269,13 +269,58 @@ async function update(excel) {
     }
 }
 
-async function status(id, status) {
+async function edit(id, payload, name, role) {
     let student = await prisma.student.findFirst({
         where: {
             id: id,
         },
     });
     if (!student) return httpRespondsMessage.notFound("student not found");
+
+    if (role == 1) {
+        if (student.aspirator != name)
+            return httpRespondsMessage.unauthorized(
+                "you are not authorized to delete this student"
+            );
+    } else if (role == 2) {
+        if (student.koordinator != name)
+            return httpRespondsMessage.unauthorized(
+                "you are not authorized to delete this student"
+            );
+    }
+
+    const dataToUpdate = {
+        ...payload,
+        updated_at: new Date(Date.now()),
+    };
+
+    student = await prisma.student.update({
+        where: {
+            id: id,
+        },
+        data: dataToUpdate,
+    });
+}
+
+async function status(id, status, name, role) {
+    let student = await prisma.student.findFirst({
+        where: {
+            id: id,
+        },
+    });
+    if (!student) return httpRespondsMessage.notFound("student not found");
+
+    if (role == 1) {
+        if (student.aspirator != name)
+            return httpRespondsMessage.unauthorized(
+                "you are not authorized to edit this student"
+            );
+    } else if (role == 2) {
+        if (student.koordinator != name)
+            return httpRespondsMessage.unauthorized(
+                "you are not authorized to edit this student"
+            );
+    }
 
     student = await prisma.student.update({
         where: {
@@ -330,6 +375,7 @@ export default {
     create,
     createWithFam,
     update,
+    edit,
     status,
     delete: deleteById,
 };
