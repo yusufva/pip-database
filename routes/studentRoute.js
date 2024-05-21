@@ -47,9 +47,11 @@ router.post(
 );
 
 router.put("/:id", async (req, res) => {
-    const student = await studentService.update(
+    const student = await studentService.edit(
         parseInt(req.params.id),
-        req.body
+        req.body,
+        req.name,
+        req.role
     );
     if (student.statusCode == StatusCodes.NOT_FOUND)
         return res.status(StatusCodes.NOT_FOUND).send(student);
@@ -59,13 +61,19 @@ router.put("/:id", async (req, res) => {
 router.put("/status/:id", async (req, res) => {
     const student = await studentService.status(
         parseInt(req.params.id),
-        req.body
+        req.body,
+        req.name,
+        req.role
     );
     res.status(student.statusCode).send(student);
 });
 
 router.delete("/:id", async (req, res) => {
-    const student = await studentService.delete(parseInt(req.params.id));
+    const student = await studentService.delete(
+        parseInt(req.params.id),
+        req.name,
+        req.role
+    );
     if (student.statusCode == StatusCodes.NOT_FOUND)
         return res.status(StatusCodes.NOT_FOUND).send(student);
     return res.send(student);
