@@ -289,16 +289,74 @@ async function edit(id, payload, name, role) {
             );
     }
 
-    const dataToUpdate = {
-        ...payload,
-        updated_at: new Date(Date.now()),
-    };
+    const err = [];
+
+    payload.familyMember.map(async (member) => {
+        try {
+            let family = await prisma.familyMember.findFirst({
+                where: { nik: member.nik },
+            });
+            if (!family) return err.push("family not found");
+            family = await prisma.familyMember.update({
+                where: {
+                    nik: member.nik,
+                },
+                data: {
+                    nama: member.nama,
+                    statusId: member.statusId,
+                    ttl: member.ttl,
+                    provinsi: member.provinsi,
+                    kota: member.kota,
+                    kecamatan: member.kecamatan,
+                    kelurahan: member.kelurahan,
+                    kodepos: member.kodepos,
+                    alamat: member.alamat,
+                    hp: member.hp,
+                },
+            });
+        } catch (e) {
+            return err.push(e);
+        }
+    });
 
     student = await prisma.student.update({
         where: {
             id: id,
         },
-        data: dataToUpdate,
+        data: {
+            nik: payload.nik,
+            nisn: payload.nisn,
+            nama: payload.nama,
+            sekolah: payload.sekolah,
+            provinsiSekolah: payload.provinsi,
+            kotaSekolah: payload.kota,
+            kecamatanSekolah: payload.kecamatan,
+            kelas: payload.kelas,
+            rombel: payload.rombel,
+            semester: payload.semester,
+            jenjang: payload.jenjang,
+            bentuk: payload.bentuk,
+            kelamin: payload.kelamin,
+            fase: payload.fase,
+            tempatLahir: payload.tempatLahir,
+            tanggalLahir: payload.tanggalLahir,
+            koordinator: payload.koordinator,
+            aspirator: payload.aspirator,
+            pic: payload.pic,
+            keteranganTambahan: payload.keteranganTambahan,
+            updated_at: new Date(Date.now()),
+        },
+        include: {
+            family: {
+                include: {
+                    familyMemberInfo: true,
+                },
+            },
+        },
+    });
+    return httpRespondsMessage.getSuccess("success update data", {
+        err,
+        student,
     });
 }
 
