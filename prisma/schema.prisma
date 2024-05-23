@@ -30,8 +30,8 @@ model student {
   jenjang             String             @db.VarChar(5)
   bentuk              String
   kelamin             String             @db.VarChar(1)
-  tempatLahir         String
-  tanggalLahir        DateTime
+  tempatLahir         String?
+  tanggalLahir        DateTime?
   nominal             Int?
   tipeSk              String?
   skNominasi          String?
