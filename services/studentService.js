@@ -76,7 +76,8 @@ async function create(payload) {
                 bentuk: payload.bentuk,
                 kelamin: payload.kelamin,
                 tempatLahir: payload.tempatLahir,
-                tanggalLahir: new Date(payload.tanggalLahir),
+                tanggalLahir:
+                    payload.ttl == null ? null : new Date(payload.tanggalLahir),
                 fase: payload.fase,
                 nik: payload.nik,
                 status: "DIDAFTARKAN",
@@ -144,7 +145,8 @@ async function createWithFam(payload) {
                 bentuk: payload.bentuk,
                 kelamin: payload.kelamin,
                 tempatLahir: payload.tempatLahir,
-                tanggalLahir: new Date(payload.tanggalLahir),
+                tanggalLahir:
+                    payload.ttl == null ? null : new Date(payload.tanggalLahir),
                 fase: payload.fase,
                 nik: payload.nik,
                 status: "DIDAFTARKAN",
