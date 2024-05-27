@@ -122,14 +122,7 @@ async function createWithFam(payload) {
                 : (member.ttl = null);
         });
         const members = [];
-        payload.familyMember.map((member) => {
-            const data = {
-                familyMemberInfo: {
-                    create: member,
-                },
-            };
-            members.push(data);
-        });
+
         const student = await prisma.student.create({
             data: {
                 nisn: payload.nisn,
@@ -154,17 +147,67 @@ async function createWithFam(payload) {
                 aspirator: payload.aspirator,
                 pic: payload.pic,
                 keteranganTambahan: payload.keteranganTambahan,
-                family: {
-                    create: members,
-                },
+                // family: {
+                //     create: [
+                //         {
+                //             familyMemberNik: "378290294820003"
+                //         },
+                //         {
+                //             familyMemberInfo: {
+                //                 create: {
+                //                     nik
+                //                 }
+                //             }
+                //         }
+                //     ],
+                // },
             },
-            include: {
-                family: {
-                    include: {
-                        familyMemberInfo: true,
+        });
+
+        await payload.familyMember.map(async (member) => {
+            const family = await prisma.familyMember.findFirst({
+                where: {
+                    nik: member.nik,
+                },
+            });
+            if (family != null) {
+                return await prisma.familyOnStudents.create({
+                    data: {
+                        familyMemberNik: member.nik,
+                        studentNisn: payload.nisn,
+                        studentFase: payload.fase,
+                    },
+                });
+            }
+            // const data = {
+            //     familyMemberInfo: {
+            //         create: member,
+            //     },
+            // };
+            await prisma.familyMember.create({
+                data: {
+                    nik: member.nik,
+                    nama: member.nama,
+                    ttl: member.ttl,
+                    statusId: member.statusId,
+                    provinsi: member.provinsi,
+                    kota: member.kota,
+                    kecamatan: member.kecamatan,
+                    kelurahan: member.kelurahan,
+                    kodepos: member.kodepos,
+                    alamat: member.alamat,
+                    hp: member.hp,
+                    student: {
+                        create: {
+                            studentFase: payload.fase,
+                            studentNisn: payload.nisn,
+                        },
                     },
                 },
-            },
+            });
+            // members.push(data);
+            // console.log(members);
+            // console.log(members[1].familyMemberInfo);
         });
 
         return httpRespondsMessage.created(
