@@ -13,9 +13,12 @@ async function getAll(nama, role) {
             },
         },
     };
-    role == 1
-        ? (findPayload.where = { aspirator: nama })
-        : (findPayload.where = { koordinator: nama });
+    if (role === 1) {
+        findPayload.where = { aspirator: nama };
+    } else if (role === 2) {
+        findPayload.where = { koordinator: nama };
+    }
+
     const students = await prisma.student.findMany(findPayload);
     return (
         httpRespondsMessage.getSuccess("success retrieve data", students) ||
@@ -121,98 +124,134 @@ async function createWithFam(payload) {
                 ? (member.ttl = new Date(member.ttl))
                 : (member.ttl = null);
         });
-        const members = [];
 
-        const student = await prisma.student.create({
-            data: {
-                nisn: payload.nisn,
-                nama: payload.nama,
-                sekolah: payload.sekolah,
-                provinsiSekolah: payload.provinsi,
-                kotaSekolah: payload.kota,
-                kecamatanSekolah: payload.kecamatan,
-                kelas: payload.kelas,
-                rombel: payload.rombel,
-                semester: payload.semester,
-                jenjang: payload.jenjang,
-                bentuk: payload.bentuk,
-                kelamin: payload.kelamin,
-                tempatLahir: payload.tempatLahir,
-                tanggalLahir:
-                    payload.ttl == null ? null : new Date(payload.tanggalLahir),
-                fase: payload.fase,
-                nik: payload.nik,
-                status: "DIDAFTARKAN",
-                koordinator: payload.koordinator,
-                aspirator: payload.aspirator,
-                pic: payload.pic,
-                keteranganTambahan: payload.keteranganTambahan,
-                // family: {
-                //     create: [
-                //         {
-                //             familyMemberNik: "378290294820003"
-                //         },
-                //         {
-                //             familyMemberInfo: {
-                //                 create: {
-                //                     nik
-                //                 }
-                //             }
-                //         }
-                //     ],
-                // },
-            },
-        });
-
-        await payload.familyMember.map(async (member) => {
-            const family = await prisma.familyMember.findFirst({
-                where: {
-                    nik: member.nik,
+        const result = await prisma.$transaction(async (tx) => {
+            await tx.student.create({
+                data: {
+                    nisn: payload.nisn,
+                    nama: payload.nama,
+                    sekolah: payload.sekolah,
+                    provinsiSekolah: payload.provinsi,
+                    kotaSekolah: payload.kota,
+                    kecamatanSekolah: payload.kecamatan,
+                    kelas: payload.kelas,
+                    rombel: payload.rombel,
+                    semester: payload.semester,
+                    jenjang: payload.jenjang,
+                    bentuk: payload.bentuk,
+                    kelamin: payload.kelamin,
+                    tempatLahir: payload.tempatLahir,
+                    tanggalLahir:
+                        payload.ttl == null
+                            ? null
+                            : new Date(payload.tanggalLahir),
+                    fase: payload.fase,
+                    nik: payload.nik,
+                    status: "DIDAFTARKAN",
+                    koordinator: payload.koordinator,
+                    aspirator: payload.aspirator,
+                    pic: payload.pic,
+                    keteranganTambahan: payload.keteranganTambahan,
+                    // family: {
+                    //     create: [
+                    //         {
+                    //             familyMemberNik: "378290294820003"
+                    //         },
+                    //         {
+                    //             familyMemberInfo: {
+                    //                 create: {
+                    //                     nik
+                    //                 }
+                    //             }
+                    //         }
+                    //     ],
+                    // },
                 },
             });
-            if (family != null) {
-                return await prisma.familyOnStudents.create({
+
+            for (let data in payload.familyMember) {
+                const family = await tx.familyMember.findFirst({
+                    where: {
+                        nik: member.nik,
+                    },
+                });
+                if (family != null) {
+                    return await tx.familyOnStudents.create({
+                        data: {
+                            familyMemberNik: member.nik,
+                            studentNisn: payload.nisn,
+                            studentFase: payload.fase,
+                        },
+                    });
+                }
+                await tx.familyMember.create({
                     data: {
-                        familyMemberNik: member.nik,
-                        studentNisn: payload.nisn,
-                        studentFase: payload.fase,
+                        nik: member.nik,
+                        nama: member.nama,
+                        ttl: member.ttl,
+                        statusId: member.statusId,
+                        provinsi: member.provinsi,
+                        kota: member.kota,
+                        kecamatan: member.kecamatan,
+                        kelurahan: member.kelurahan,
+                        kodepos: member.kodepos,
+                        alamat: member.alamat,
+                        hp: member.hp,
+                        student: {
+                            create: {
+                                studentFase: payload.fase,
+                                studentNisn: payload.nisn,
+                            },
+                        },
                     },
                 });
             }
-            // const data = {
-            //     familyMemberInfo: {
-            //         create: member,
-            //     },
-            // };
-            await prisma.familyMember.create({
-                data: {
-                    nik: member.nik,
-                    nama: member.nama,
-                    ttl: member.ttl,
-                    statusId: member.statusId,
-                    provinsi: member.provinsi,
-                    kota: member.kota,
-                    kecamatan: member.kecamatan,
-                    kelurahan: member.kelurahan,
-                    kodepos: member.kodepos,
-                    alamat: member.alamat,
-                    hp: member.hp,
-                    student: {
-                        create: {
-                            studentFase: payload.fase,
-                            studentNisn: payload.nisn,
-                        },
-                    },
-                },
-            });
-            // members.push(data);
-            // console.log(members);
-            // console.log(members[1].familyMemberInfo);
+
+            // payload.familyMember.map((member) => {
+            //     const family = tx.familyMember.findFirst({
+            //         where: {
+            //             nik: member.nik,
+            //         },
+            //     });
+            //     if (family != null) {
+            //         return tx.familyOnStudents.create({
+            //             data: {
+            //                 familyMemberNik: member.nik,
+            //                 studentNisn: payload.nisn,
+            //                 studentFase: payload.fase,
+            //             },
+            //         });
+            //     }
+            //     tx.familyMember.create({
+            //         data: {
+            //             nik: member.nik,
+            //             nama: member.nama,
+            //             ttl: member.ttl,
+            //             statusId: member.statusId,
+            //             provinsi: member.provinsi,
+            //             kota: member.kota,
+            //             kecamatan: member.kecamatan,
+            //             kelurahan: member.kelurahan,
+            //             kodepos: member.kodepos,
+            //             alamat: member.alamat,
+            //             hp: member.hp,
+            //             student: {
+            //                 create: {
+            //                     studentFase: payload.fase,
+            //                     studentNisn: payload.nisn,
+            //                 },
+            //             },
+            //         },
+            //     });
+            //     // members.push(data);
+            //     // console.log(members);
+            //     // console.log(members[1].familyMemberInfo);
+            // });
         });
 
         return httpRespondsMessage.created(
             "success create student with family",
-            student
+            result
         );
     } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
