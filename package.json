@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "start": "pm2 start ./bin/www",
-        "dev": "nodemon ./bin/www",
+        "start": "pm2 start ./bin/www.js",
+        "dev": "nodemon ./bin/www.js",
         "prisma:seed": "node prisma/seed.js",
         "prisma:roleseed": "node prisma/roleseed.js"
     },
