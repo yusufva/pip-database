@@ -126,7 +126,7 @@ async function createWithFam(payload) {
         });
 
         const result = await prisma.$transaction(async (tx) => {
-            await tx.student.create({
+            const student = await tx.student.create({
                 data: {
                     nisn: payload.nisn,
                     nama: payload.nama,
@@ -152,101 +152,52 @@ async function createWithFam(payload) {
                     aspirator: payload.aspirator,
                     pic: payload.pic,
                     keteranganTambahan: payload.keteranganTambahan,
-                    // family: {
-                    //     create: [
-                    //         {
-                    //             familyMemberNik: "378290294820003"
-                    //         },
-                    //         {
-                    //             familyMemberInfo: {
-                    //                 create: {
-                    //                     nik
-                    //                 }
-                    //             }
-                    //         }
-                    //     ],
-                    // },
                 },
             });
 
-            for (let data in payload.familyMember) {
+            for (let data of payload.familyMember) {
                 const family = await tx.familyMember.findFirst({
                     where: {
-                        nik: member.nik,
+                        nik: data.nik,
                     },
                 });
-                if (family != null) {
-                    return await tx.familyOnStudents.create({
+                if (!family) {
+                    await tx.familyMember.create({
                         data: {
-                            familyMemberNik: member.nik,
-                            studentNisn: payload.nisn,
-                            studentFase: payload.fase,
+                            nik: data.nik,
+                            nama: data.nama,
+                            ttl: data.ttl,
+                            statusId: data.statusId,
+                            provinsi: data.provinsi,
+                            kota: data.kota,
+                            kecamatan: data.kecamatan,
+                            kelurahan: data.kelurahan,
+                            kodepos: data.kodepos,
+                            alamat: data.alamat,
+                            hp: data.hp,
                         },
                     });
                 }
-                await tx.familyMember.create({
+                await tx.familyOnStudents.create({
                     data: {
-                        nik: member.nik,
-                        nama: member.nama,
-                        ttl: member.ttl,
-                        statusId: member.statusId,
-                        provinsi: member.provinsi,
-                        kota: member.kota,
-                        kecamatan: member.kecamatan,
-                        kelurahan: member.kelurahan,
-                        kodepos: member.kodepos,
-                        alamat: member.alamat,
-                        hp: member.hp,
-                        student: {
-                            create: {
-                                studentFase: payload.fase,
-                                studentNisn: payload.nisn,
+                        studentInfo: {
+                            connect: {
+                                nisn_fase: {
+                                    nisn: payload.nisn,
+                                    fase: payload.fase,
+                                },
+                            },
+                        },
+                        familyMemberInfo: {
+                            connect: {
+                                nik: data.nik,
                             },
                         },
                     },
                 });
             }
 
-            // payload.familyMember.map((member) => {
-            //     const family = tx.familyMember.findFirst({
-            //         where: {
-            //             nik: member.nik,
-            //         },
-            //     });
-            //     if (family != null) {
-            //         return tx.familyOnStudents.create({
-            //             data: {
-            //                 familyMemberNik: member.nik,
-            //                 studentNisn: payload.nisn,
-            //                 studentFase: payload.fase,
-            //             },
-            //         });
-            //     }
-            //     tx.familyMember.create({
-            //         data: {
-            //             nik: member.nik,
-            //             nama: member.nama,
-            //             ttl: member.ttl,
-            //             statusId: member.statusId,
-            //             provinsi: member.provinsi,
-            //             kota: member.kota,
-            //             kecamatan: member.kecamatan,
-            //             kelurahan: member.kelurahan,
-            //             kodepos: member.kodepos,
-            //             alamat: member.alamat,
-            //             hp: member.hp,
-            //             student: {
-            //                 create: {
-            //                     studentFase: payload.fase,
-            //                     studentNisn: payload.nisn,
-            //                 },
-            //             },
-            //         },
-            //     });
-            //     // members.push(data);
-            //     // console.log(members);
-            //     // console.log(members[1].familyMemberInfo);
-            // });
+            return student;
         });
 
         return httpRespondsMessage.created(
@@ -380,6 +331,7 @@ async function edit(id, payload, name, role) {
             let family = await prisma.familyMember.findFirst({
                 where: { nik: member.nik },
             });
+            console.log(family);
             if (!family) return err.push("family not found");
             family = await prisma.familyMember.update({
                 where: {
@@ -423,7 +375,8 @@ async function edit(id, payload, name, role) {
             kelamin: payload.kelamin,
             fase: payload.fase,
             tempatLahir: payload.tempatLahir,
-            tanggalLahir: payload.tanggalLahir,
+            tanggalLahir:
+                payload.ttl == null ? null : new Date(payload.tanggalLahir),
             koordinator: payload.koordinator,
             aspirator: payload.aspirator,
             pic: payload.pic,
