@@ -53,9 +53,7 @@ router.put("/:id", async (req, res) => {
         req.name,
         req.role
     );
-    if (student.statusCode == StatusCodes.NOT_FOUND)
-        return res.status(StatusCodes.NOT_FOUND).send(student);
-    res.send(student);
+    res.status(student?.statusCode).send(student);
 });
 
 router.put("/status/:id", async (req, res) => {
