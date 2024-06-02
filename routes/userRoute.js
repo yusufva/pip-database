@@ -1,12 +1,10 @@
 import express from "express";
 import userService from "../services/userService.js";
 
-import jwtauth from "../middleware/jwtauth.js";
-
 let router = express.Router();
 
 router.get("/", async (req, res) => {
-    const koordinators = await userService.getUserByAspirator(req.id);
+    const koordinators = await userService.getUserByAspirator(req.id, req.role);
     res.status(koordinators.statusCode).send(koordinators);
 });
 

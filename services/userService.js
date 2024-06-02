@@ -5,11 +5,11 @@ import httpRespondsMessage from "../helper/httpRespondsMessage.js";
 
 const prisma = new PrismaClient();
 
-async function getUserByAspirator(id) {
+async function getUserByAspirator(id, role) {
+    const whereClause =
+        role === 1 ? { aspiratorId: id, role_id: 2 } : { role_id: 2 };
     const user = await prisma.user.findMany({
-        where: {
-            aspiratorId: id,
-        },
+        where: whereClause,
         select: {
             id: true,
             username: true,
