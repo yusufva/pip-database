@@ -49,6 +49,35 @@ async function getAllAspirator() {
     return httpRespondsMessage.getSuccess("success retrieve data", user);
 }
 
+async function getStatistics() {
+    const koordinator = await prisma.student.groupBy({
+        by: ["koordinator"],
+        _count: {
+            koordinator: true,
+        },
+        orderBy: {
+            koordinator: "asc",
+        },
+    });
+
+    const aspirator = await prisma.student.groupBy({
+        by: ["aspirator"],
+        _count: {
+            aspirator: true,
+        },
+        orderBy: {
+            aspirator: "asc",
+        },
+    });
+
+    const response = {
+        aspirator: aspirator,
+        koordinator: koordinator,
+    };
+
+    return httpRespondsMessage.getSuccess("success retrieve data", response);
+}
+
 async function login(loginPayload) {
     const user = await prisma.user.findFirst({
         where: { username: loginPayload.username },
@@ -141,6 +170,7 @@ async function resetPassword(id, userId, resetPayload) {
 export default {
     getUserByAspirator,
     getAllAspirator,
+    getStatistics,
     login,
     register,
     resetPassword,
