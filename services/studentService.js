@@ -148,7 +148,7 @@ async function createWithFam(payload) {
                     fase: payload.fase,
                     nik: payload.nik,
                     status:
-                        payload.status === null
+                        payload.status === undefined
                             ? "DIDAFTARKAN"
                             : payload.status,
                     koordinator: payload.koordinator,
