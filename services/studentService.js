@@ -147,7 +147,10 @@ async function createWithFam(payload) {
                             : new Date(payload.tanggalLahir),
                     fase: payload.fase,
                     nik: payload.nik,
-                    status: "DIDAFTARKAN",
+                    status:
+                        payload.status === null
+                            ? "DIDAFTARKAN"
+                            : payload.status,
                     koordinator: payload.koordinator,
                     aspirator: payload.aspirator,
                     pic: payload.pic,
